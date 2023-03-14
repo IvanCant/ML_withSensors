@@ -2,14 +2,13 @@ import tensorflow as tf
 import pathlib
 import numpy as np
 import matplotlib.pyplot as plt
-import os
 
 
 # go through all files in desired folder ###############################################################################
-folders = ['./Traffic Signs/10 speed limit sign/', './Traffic Signs/15 speed limit sign/', './Traffic Signs/25 speed limit sign/', './Traffic Signs/30 speed limit sign/', './Traffic Signs/35 speed limit sign/', './Traffic Signs/45 speed limit sign/','./Traffic Signs/Slow sign/', './Traffic Signs/Stop sign/', './Traffic Signs/Wrong Way/', './Traffic Signs/Yield sign/']
+folders = ['./Traffic Signs/10 speed limit sign/', './Traffic Signs/15 speed limit sign/', './Traffic Signs/25 speed limit sign/', './Traffic Signs/30 speed limit sign/', './Traffic Signs/35 speed limit sign/', './Traffic Signs/45 speed limit sign/','./Traffic Signs/Slow sign/', './Traffic Signs/Stop sign/', './Traffic Signs/Wrong Way/', './Traffic Signs/Yield sign/', './Traffic Signs/Car/', './Traffic Signs/Pedestrians/', './Traffic Signs/Truck/']
 
 img_height, img_width = [256, 256]
-batch_size = 100
+batch_size = 64
 # POSSIBILY LARGER BATCH ###############################################################################################
 
 # CHANGE ###############################################################################################################
@@ -37,28 +36,28 @@ train_ds = train_ds.cache().prefetch(buffer_size=AUTOTUNE)
 val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
 
 # CHANGE ###############################################################################################################
-num_classes = 10
+num_classes = 13
 
 model = tf.keras.Sequential([
     tf.keras.layers.Rescaling(1. / 255),
     tf.keras.layers.Conv2D(32, 3, activation='relu'), #(filters, kernel_size,
     tf.keras.layers.MaxPooling2D(),
-    tf.keras.layers.Dropout(.5),
+    tf.keras.layers.Dropout(.3),
     tf.keras.layers.Conv2D(64, 3, activation='relu'),
     tf.keras.layers.MaxPooling2D(),
-    tf.keras.layers.Dropout(.5),
+    tf.keras.layers.Dropout(.3),
     tf.keras.layers.Conv2D(128, 3, activation='relu'),
     tf.keras.layers.MaxPooling2D(),
-    tf.keras.layers.Dropout(.5),
+    tf.keras.layers.Dropout(.3),
     tf.keras.layers.Conv2D(256, 3, activation='relu'),
     tf.keras.layers.MaxPooling2D(),
-    tf.keras.layers.Dropout(.5),
-    tf.keras.layers.Conv2D(512, 3, activation='relu'),
+    tf.keras.layers.Dropout(.3),
+    tf.keras.layers.Conv2D(256, 3, activation='relu'),
     tf.keras.layers.MaxPooling2D(),
-    tf.keras.layers.Dropout(.5),
-    tf.keras.layers.Conv2D(1024, 3, activation='relu'),
+    tf.keras.layers.Dropout(.3),
+    tf.keras.layers.Conv2D(256, 3, activation='relu'),
     tf.keras.layers.MaxPooling2D(),
-    tf.keras.layers.Dropout(.5),
+    tf.keras.layers.Dropout(.3),
     tf.keras.layers.Flatten(),
     tf.keras.layers.Dense(128, activation='relu'),
     tf.keras.layers.Dense(num_classes, activation='softmax'),
@@ -66,9 +65,9 @@ model = tf.keras.Sequential([
 ])
 
 #loss=tf.losses.SparseCategoricalCrossentropy(from_logits=True)
-model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 history = model.fit(train_ds, validation_data=val_ds,
-                    epochs=15)  # EPOCHS #############################################
+                    epochs=100)  # EPOCHS #############################################
 
 y_vloss = history.history['val_loss']
 y_loss = history.history['loss']
@@ -86,5 +85,5 @@ ax2.plot(np.arange(len(y_acc)), y_acc, marker='.', c='blue')
 ax2.grid()
 plt.setp(ax2, xlabel='epoch', ylabel='accuracy')
 
-model.save('10-ClassesSM.model')
+model.save('final20val.model')
 plt.show()
